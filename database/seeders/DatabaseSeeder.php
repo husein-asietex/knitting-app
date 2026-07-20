@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Machines;
+use App\Models\MachineOperators;
 use App\Models\User;
 use App\Models\Teams;
 use App\Models\Shifts;
@@ -18,54 +19,54 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $sectionsData = [
-            ['id' => 1, 'name' => 'Section A', 'description' => 'Description Section A'],
-            ['id' => 2, 'name' => 'Section B', 'description' => 'Description Section B'],
-            ['id' => 3, 'name' => 'Section C', 'description' => 'Description Section C'],
+            ['name' => 'Section A', 'description' => 'Description Section A'],
+            ['name' => 'Section B', 'description' => 'Description Section B'],
+            ['name' => 'Section C', 'description' => 'Description Section C'],
         ];
 
         foreach ($sectionsData as $data) {
-            Sections::updateOrCreate(['id' => $data['id']], $data);
+            Sections::firstOrCreate(['name' => $data['name']], $data);
         }
 
         $rolesData = [
-            ['id' => 1, 'name' => 'Superadmin'],
-            ['id' => 2, 'name' => 'Admin'],
-            ['id' => 3, 'name' => 'User'],
+            ['name' => 'Superadmin'],
+            ['name' => 'Admin'],
+            ['name' => 'User'],
         ];
 
         foreach ($rolesData as $data) {
-            Roles::updateOrCreate(['id' => $data['id']], $data);
+            Roles::firstOrCreate(['name' => $data['name']], $data);
         }
 
         $role1 = Roles::find(1);
 
         $teams = [
-            ['id' => 1, 'name' => 'Team A'],
-            ['id' => 2, 'name' => 'Team B'],
-            ['id' => 3, 'name' => 'Team C'],
-            ['id' => 4, 'name' => 'Team D'],
-            ['id' => 5, 'name' => 'Team E'],
+            ['name' => 'Team A'],
+            ['name' => 'Team B'],
+            ['name' => 'Team C'],
+            ['name' => 'Team D'],
+            ['name' => 'Team E'],
         ];
 
         foreach ($teams as $data) {
-            Teams::updateOrCreate(['id' => $data['id']], $data);
+            Teams::firstOrCreate(['name' => $data['name']], $data);
         }
         
         $teams1 = Teams::find(1);
 
         $shiftsData = [
-            ['id' => 1, 'name' => 'Shift Pagi',  'start_at' => '06:00', 'finished_at' => '14:00'],
-            ['id' => 2, 'name' => 'Shift Siang', 'start_at' => '14:00', 'finished_at' => '22:00'],
-            ['id' => 3, 'name' => 'Shift Malam', 'start_at' => '22:00', 'finished_at' => '06:00'],
+            ['name' => 'Shift Pagi',  'start_at' => '06:00', 'finished_at' => '14:00'],
+            ['name' => 'Shift Siang', 'start_at' => '14:00', 'finished_at' => '22:00'],
+            ['name' => 'Shift Malam', 'start_at' => '22:00', 'finished_at' => '06:00'],
         ];
 
         foreach ($shiftsData as $data) {
-            Shifts::updateOrCreate(['id' => $data['id']], $data);
+            Shifts::firstOrCreate(['name' => $data['name']], $data);
         }
 
         $shift1 = Shifts::find(1);
 
-        User::updateOrCreate([
+        User::create([
             'name'     => 'Super Admin',
             'username' => 'superadmin',
             'position' => 'IT',
@@ -77,6 +78,8 @@ class DatabaseSeeder extends Seeder
         ]);
 
         User::factory(25)->create();
+
+        MachineOperators::factory(25)->create();
 
         $machinesData = [
             [

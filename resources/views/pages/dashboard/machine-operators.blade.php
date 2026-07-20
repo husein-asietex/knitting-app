@@ -1,9 +1,9 @@
 <?php
 
-use App\Models\User;
-use App\Models\Roles;
+use App\Models\MachineOperators;
 use App\Models\Teams;
 use App\Models\Shifts;
+use App\Models\Sections;
 use Livewire\Component;
 use Livewire\Attributes\Title;
 use Livewire\WithPagination;
@@ -12,11 +12,12 @@ use Illuminate\Validation\Rule;
 
 
 
-new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
+new #[Layout('layouts::app')] #[Title('Machine Operators')] class extends Component{
     use WithPagination, WithoutUrlPagination;
 
     /* ─── Filters ─── */
     public string $search = '';
+    public string $sectionFilter = '';
     public string $teamFilter = '';
     public string $shiftFilter = '';
     public int $perPage = 10;
@@ -29,36 +30,32 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
 
     /* ─── Form fields ─── */
     public string $name = '';
-    public string $username = '';
     public ?string $position = '';
-    public string $email = '';
-    public string $password = '';
-    public ?int $role_id = null;
+    public ?int $section_id = null;
     public ?int $team_id = null;
     public ?int $shift_id = null;
 
     public function mount(){
-       $this->dispatch('page-title', title: 'Users', subtitle: 'Data untuk User');
+       $this->dispatch('page-title', title: 'Machine Operators', subtitle: 'Data untuk Machine Operators');
     }
 
     /* ─── Data ─── */
     public function with(): array
     {
-        $users = User::query()
-            ->with(['team', 'shift'])
+        $machineOperators = MachineOperators::query()
+            ->with(['team', 'shift', 'section'])
             ->when($this->search, fn($q) => $q->where('name', 'ILIKE', "%{$this->search}%"))
+            ->when($this->sectionFilter, fn($q) => $q->where('section_id', $this->sectionFilter))
             ->when($this->teamFilter, fn($q) => $q->where('team_id', $this->teamFilter))
             ->when($this->shiftFilter, fn($q) => $q->where('shift_id', $this->shiftFilter))
             ->orderBy('name')
             ->paginate($this->perPage);
 
-        // dd($users); // ← uncomment di sini jika ingin debug
-
         return [
-            'users'  => $users,
+            'machineOperators'  => $machineOperators,
+            'sections' => Sections::orderBy('id')->get(),
             'teams'  => Teams::orderBy('id')->get(),
             'shifts' => Shifts::orderBy('id')->get(),
-            'roles'  => Roles::orderBy('id')->get(),
         ];
     }
 
@@ -75,38 +72,26 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
     {
         $this->validate([
             'name' => 'required',
-            'username' => [
-                'required', 'string', 'max:100',
-                Rule::unique('users', 'username')->ignore($this->editingId),
-            ],
-            'position' => 'nullable|string|max:100',
-            'email' => [
-                'required', 'email', 'max:255',
-                Rule::unique('users', 'email')->ignore($this->editingId),
-            ],
-            'password' => $this->editingId ? 'nullable|string|max:100' : 'required|string|max:100',
-            'role_id' => 'required|exists:roles,id',
+            'position' => 'required',
+            'section_id' => 'required|exists:sections,id',
             'team_id' => 'required|exists:teams,id',
             'shift_id' => 'required|exists:shifts,id',
         ]);
 
         $data = [
             'name' => $this->name,
-            'username' => $this->username,
             'position' => $this->position ?: null,
-            'email' => $this->email,
-            'password' => bcrypt($this->password),
-            'role_id' => $this->role_id,
+            'section_id' => $this->section_id,
             'team_id' => $this->team_id,
             'shift_id' => $this->shift_id,
         ];
 
         if ($this->editingId) {
-            User::findOrFail($this->editingId)->update($data);
-            $this->dispatch('notify', type: 'success', message: 'User berhasil diperbarui.');
+            MachineOperators::findOrFail($this->editingId)->update($data);
+            $this->dispatch('notify', type: 'success', message: 'Machine Operator berhasil diperbarui.');
         } else {
-            User::create($data);
-            $this->dispatch('notify', type: 'success', message: 'User baru berhasil ditambahkan.');
+            MachineOperators::create($data);
+            $this->dispatch('notify', type: 'success', message: 'Machine Operator baru berhasil ditambahkan.');
         }
 
         $this->showModal = false;
@@ -116,15 +101,13 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
     /* ─── Edit ─── */
     public function edit(int $id): void
     {
-        $user = User::findOrFail($id);
+        $machineOperator = MachineOperators::findOrFail($id);
         $this->editingId = $id;
-        $this->name = $user->name;
-        $this->position = $user->position ?? '';
-        $this->username = $user->username;
-        $this->email = $user->email;
-        $this->role_id = $user->role_id;
-        $this->team_id = $user->team_id;
-        $this->shift_id = $user->shift_id;
+        $this->name = $machineOperator->name;
+        $this->position = $machineOperator->position ?? '';
+        $this->section_id = $machineOperator->section_id;
+        $this->team_id = $machineOperator->team_id;
+        $this->shift_id = $machineOperator->shift_id;
         $this->resetValidation();
         $this->showModal = true;
     }
@@ -136,10 +119,10 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
             return;
         }
 
-        User::findOrFail($this->deleteId)->delete();
+        MachineOperators::findOrFail($this->deleteId)->delete();
         $this->showDeleteModal = false;
         $this->deleteId = null;
-        $this->dispatch('notify', type: 'success', message: 'User berhasil dihapus.');
+        $this->dispatch('notify', type: 'success', message: 'Machine Operators berhasil dihapus.');
     }
 
     /* ─── Confirm Delete ─── */
@@ -161,11 +144,8 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
     protected function resetForm(): void
     {
         $this->name = '';
-        $this->username = '';
         $this->position = null;
-        $this->email = '';
-        $this->password = '';
-        $this->role_id = null;
+        $this->section_id = null;
         $this->team_id = null;
         $this->shift_id = null;
         $this->resetValidation();
@@ -177,22 +157,10 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
         return [
             'name.required' => 'Nama wajib diisi.',
             'name.max' => 'Nama maksimal 100 karakter.',
-            'username.required' => 'Username wajib diisi.',
-            'username.unique' => 'Username sudah digunakan.',
-            'username.max' => 'Username maksimal 100 karakter.',
             'position.max' => 'Jabatan maksimal 100 karakter.',
-            'email.required' => 'Email wajib diisi.',
-            'email.email' => 'Email tidak valid.',
-            'email.unique' => 'Email sudah digunakan.',
-            'email.max' => 'Email maksimal 255 karakter.',
-            'password.required' => 'Password wajib diisi.',
-            'password.max' => 'Password maksimal 100 karakter.',
-            'role_id.required' => 'Role wajib dipilih.',
-            'role_id.exists' => 'Role tidak ditemukan.',
-            'team_id.required' => 'Regu wajib dipilih.',
-            'team_id.exists' => 'Regu tidak ditemukan.',
+            'section_id.required' => 'Section wajib dipilih.',
+            'team_id.required' => 'Team wajib dipilih.',
             'shift_id.required' => 'Shift wajib dipilih.',
-            'shift_id.exists' => 'Shift tidak ditemukan.',
         ];
     }
 
@@ -207,7 +175,7 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
         
         <button wire:click="create" class="btn btn-accent self-start sm:self-auto">
             <livewire:elements.icons.plus class="w-4 h-4" />
-            Tambah User
+            Tambah Machine Operator
         </button>
     </div>
 
@@ -216,13 +184,13 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div class="relative sm:col-span-2 lg:col-span-1">
                 <livewire:elements.icons.search class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4 text-slate" />
-                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari nama user..."
+                <input type="text" wire:model.live.debounce.300ms="search" placeholder="Cari nama machine operator..."
                     class="input pl-9" />
             </div>
-            <select wire:model.live="roleFilter" class="input sm:col-span-2 lg:col-span-1">
-                <option value="" selected>Semua Role</option>                
-                @foreach ($roles as $role)
-                    <option value="{{ $role->id }}">{{ $role->name }}</option>
+            <select wire:model.live="sectionFilter" class="input sm:col-span-2 lg:col-span-1">
+                <option value="" selected>Semua Section</option>                
+                @foreach ($sections as $section)
+                    <option value="{{ $section->id }}">{{ $section->name }}</option>
                 @endforeach
             </select>
             <select wire:model.live="teamFilter" class="input sm:col-span-2 lg:col-span-1">
@@ -248,39 +216,35 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
                 <thead>
                     <tr>
                         <th>Name</th>
-                        <th>Username</th>
                         <th>Position</th>
-                        <th>Email</th>
-                        <th>Role</th>
+                        <th>Section</th>
                         <th>Team</th>
                         <th>Shift</th>
                         <th class="text-right">Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                    @foreach ($users as $user)
+                    @foreach ($machineOperators as $machineOperator)
                     <tr>
                         <td>
                             <div class="flex items-center gap-2.5">
                                 <div class="w-7 h-7 rounded-full flex items-center justify-center text-white text-[11px] font-bold shrink-0"
-                                    style="background:var(--navy)">{{ $user->initials() }}</div>
-                                <span class="font-medium">{{ $user->name }}</span>
+                                    style="background:var(--navy)">{{ $machineOperator->initials() }}</div>
+                                <span class="font-medium">{{ $machineOperator->name }}</span>
                             </div>
                         </td>
-                        <td>{{ $user->username }}</td>
-                        <td><span class="text-sm" style="color:var(--slate)">{{ $user->position }}</span></td>
-                        <td>{{ $user->email }}</td>
-                        <td>{{ $user->role->name }}</td>
-                        <td>{{ $user->team->name }}</td>
-                        <td>{{ $user->shift->name }}</td>
+                        <td><span class="text-sm" style="color:var(--slate)">{{ $machineOperator->position }}</span></td>
+                        <td>{{ $machineOperator->section->name }}</td>
+                        <td>{{ $machineOperator->team->name }}</td>
+                        <td>{{ $machineOperator->shift->name }}</td>
                         <td>
                             <div class="flex items-center justify-end gap-1.5">
                                 <button class="btn btn-ghost !py-1.5 !px-2.5" title="Edit"
-                                wire:click="edit({{ $user->id }})">
+                                wire:click="edit({{ $machineOperator->id }})">
                                     <livewire:elements.icons.edit class="w-4 h-4" />
                                 </button>
                                 <button class="btn btn-ghost !py-1.5 !px-2.5" style="color:var(--red)" title="Hapus"
-                                    wire:click="confirmDelete({{ $user->id }})">
+                                    wire:click="confirmDelete({{ $machineOperator->id }})">
                                     <livewire:elements.icons.trash-2 class="w-4 h-4" />
                                 </button>
                             </div>
@@ -292,7 +256,7 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
         </div>
 
         {{-- Pagination sample --}}
-        {{ $users->links() }}
+        {{ $machineOperators->links() }}
 
     </div>
     
@@ -300,7 +264,7 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
     @props(['editingId' => null, 'roles' => [], 'teams' => [], 'shifts' => []])
 
     <x-fragments.modals.form-modal
-        :title="$editingId ? 'Edit User' : 'Tambah User Baru'"
+        :title="$editingId ? 'Edit Machine Operator' : 'Tambah Machine Operator'"
         show="showModal"
         close="closeModal"
         submit="save"
@@ -310,17 +274,6 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
             <label class="label">Name<span style="color:var(--red)">*</span></label>
             <input wire:model="name" type="text" class="input @error('name') !border-red-400 @enderror" placeholder="Masukkan data..." autofocus />
             @error('name')
-                <p class="flex items-center gap-1 text-xs mt-1.5" style="color:var(--red)">
-                    <livewire:elements.icons.info class="w-3 h-3" />{{ $message }}
-                </p>
-            @enderror
-        </div>
-
-        {{-- Username --}}
-        <div>
-            <label class="label">Username<span style="color:var(--red)">*</span></label>
-            <input wire:model="username" type="text" class="input @error('username') !border-red-400 @enderror" placeholder="Masukkan data..." />
-            @error('username')
                 <p class="flex items-center gap-1 text-xs mt-1.5" style="color:var(--red)">
                     <livewire:elements.icons.info class="w-3 h-3" />{{ $message }}
                 </p>
@@ -338,77 +291,70 @@ new #[Layout('layouts::app')] #[Title('Users')] class extends Component{
             @enderror
         </div>
 
-        {{-- Email --}}
+        {{-- Section --}}
         <div>
-            <label class="label">Email<span style="color:var(--red)">*</span></label>
-            <input wire:model="email" type="email" class="input @error('email') !border-red-400 @enderror" placeholder="Masukkan data..." />
-            @error('email')
+            <label class="label">Section <span style="color:var(--red)">*</span></label>
+            <select wire:model="section_id" class="input @error('section_id') !border-red-400 @enderror">
+                <option value="">— Pilih Section —</option>
+                @foreach ($sections as $section)
+                    <option value="{{ $section->id }}">{{ $section->name }}</option>
+                @endforeach
+            </select>
+            @error('section_id')
                 <p class="flex items-center gap-1 text-xs mt-1.5" style="color:var(--red)">
                     <livewire:elements.icons.info class="w-3 h-3" />{{ $message }}
                 </p>
             @enderror
         </div>
 
-        {{-- Password --}}
+        {{-- Section --}}
         <div>
-            <label class="label">Password<span style="color:var(--red)">*</span></label>
-            <input wire:model="password" type="password" class="input @error('password') !border-red-400 @enderror" placeholder="Masukkan data..." />
-            @error('password')
+            <label class="label">Section <span style="color:var(--red)">*</span></label>
+            <select wire:model="section_id" class="input @error('section_id') !border-red-400 @enderror">
+                <option value="">— Pilih Section —</option>
+                @foreach ($sections as $section)
+                    <option value="{{ $section->id }}">{{ $section->name }}</option>
+                @endforeach
+            </select>
+            @error('section_id')
                 <p class="flex items-center gap-1 text-xs mt-1.5" style="color:var(--red)">
                     <livewire:elements.icons.info class="w-3 h-3" />{{ $message }}
                 </p>
             @enderror
         </div>
-
-        {{-- Role --}}
+        
+        {{-- Team --}}
         <div>
-            <label class="label">Role <span style="color:var(--red)">*</span></label>
-            <select wire:model="role_id" class="input @error('role_id') !border-red-400 @enderror">
-                <option value="">— Pilih Role —</option>
+            <label class="label">Team <span style="color:var(--red)">*</span></label>
+            <select wire:model="team_id" class="input @error('team_id') !border-red-400 @enderror">
+                <option value="">— Pilih Team —</option>
                 <option value="2">Admin</option>
                 <option value="3">User</option>
                 
             </select>
-            @error('role_id')
+            @error('team_id')
                 <p class="flex items-center gap-1 text-xs mt-1.5" style="color:var(--red)">
                     <livewire:elements.icons.info class="w-3 h-3" />{{ $message }}
                 </p>
             @enderror
         </div>
 
-        {{-- Team & Shift --}}
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <label class="label">Team <span style="color:var(--red)">*</span></label>
-                <select wire:model="team_id" class="input @error('team_id') !border-red-400 @enderror">
-                    <option value="">— Pilih Team —</option>
-                    <option value="1">Team A</option>
-                    <option value="2">Team B</option>
-                    <option value="3">Team C</option>
-                    <option value="4">Team D</option>
-                    <option value="5">Team E</option>
-                </select>
-                @error('team_id')
-                    <p class="flex items-center gap-1 text-xs mt-1.5" style="color:var(--red)">
-                        <livewire:elements.icons.info class="w-3 h-3" />{{ $message }}
-                    </p>
-                @enderror
-            </div>
-            <div>
-                <label class="label">Shift <span style="color:var(--red)">*</span></label>
-                <select wire:model="shift_id" class="input @error('shift_id') !border-red-400 @enderror">
-                    <option value="">— Pilih shift —</option>
-                    <option value="1">Shift 1 (Pagi)</option>
-                    <option value="2">Shift 2 (Siang)</option>
-                    <option value="3">Shift 3 (Malam)</option>
-                </select>
-                @error('shift_id')
-                    <p class="flex items-center gap-1 text-xs mt-1.5" style="color:var(--red)">
-                        <livewire:elements.icons.info class="w-3 h-3" />{{ $message }}
-                    </p>
-                @enderror
-            </div>
+        {{-- Shift --}}
+        <div>
+            <label class="label">Shift <span style="color:var(--red)">*</span></label>
+            <select wire:model="shift_id" class="input @error('shift_id') !border-red-400 @enderror">
+                <option value="">— Pilih Shift —</option>
+                @foreach ($shifts as $shift)
+                    <option value="{{ $shift->id }}">{{ $shift->name }}</option>
+                @endforeach
+            </select>
+            @error('shift_id')
+                <p class="flex items-center gap-1 text-xs mt-1.5" style="color:var(--red)">
+                    <livewire:elements.icons.info class="w-3 h-3" />{{ $message }}
+                </p>
+            @enderror
         </div>
+
     </x-fragments.modals.form-modal>
     
     {{-- ─── Modal Confirm Delete ─── --}}

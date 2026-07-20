@@ -46,6 +46,26 @@ new class extends Component {
                         <livewire:elements.icons.package class="w-4 h-4" />
                         <span>Users</span>
                     </a>
+                    <a href="{{ route('machines') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
+                        <livewire:elements.icons.package class="w-4 h-4" />
+                        <span>Machines</span>
+                    </a>
+                    <a href="{{ route('shifts') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
+                        <livewire:elements.icons.package class="w-4 h-4" />
+                        <span>Shifts</span>
+                    </a>
+                    <a href="{{ route('teams') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
+                        <livewire:elements.icons.package class="w-4 h-4" />
+                        <span>Teams</span>
+                    </a>
+                    <a href="{{ route('sections') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
+                        <livewire:elements.icons.package class="w-4 h-4" />
+                        <span>Sections</span>
+                    </a>
+                    <a href="{{ route('machine-operators') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
+                        <livewire:elements.icons.package class="w-4 h-4" />
+                        <span>Machine Operators</span>
+                    </a>
                 </div>
             @endcan
 

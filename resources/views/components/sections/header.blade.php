@@ -28,8 +28,8 @@ new class extends Component {
         <div class="flex items-center gap-2 sm:gap-3">
             @if (auth()->user()->shift_id || auth()->user()->team_id)
                 <span class="badge badge-on hidden sm:inline-flex">
-                    Regu {{ auth()->user()->team?->name ?? (auth()->user()->team_name ?? '—') }} ·
-                    Shift {{ auth()->user()->shift?->name ?? (auth()->user()->shift_name ?? '—') }}
+                    {{ auth()->user()->team?->name ?? (auth()->user()->team_name ?? '—') }} ·
+                    {{ auth()->user()->shift?->name ?? (auth()->user()->shift_name ?? '—') }}
 
                     @if (auth()->user()->shift?->start_at && auth()->user()->shift?->finished_at)
                         ·

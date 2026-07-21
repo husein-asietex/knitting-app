@@ -148,7 +148,7 @@ new #[Layout('layouts::app')] #[Title('Sections')] class extends Component{
     </div>
 
     {{-- ─── Filter bar ─── --}}
-    <div class="card p-4 mb-4 anim-fade-up w-full lg:w-1/2" style="animation-delay:.06s">
+    <div class="card p-4 mb-4 anim-fade-up" style="animation-delay:.06s">
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
             <div class="relative sm:col-span-2 lg:col-span-4">
                 <livewire:elements.icons.search class="absolute left-3 top-1/2 -translate-y-1/2 pointer-events-none w-4 h-4 text-slate" />

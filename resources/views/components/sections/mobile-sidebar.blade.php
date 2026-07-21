@@ -31,23 +31,7 @@ new class extends Component {
                 </div>
                 <div class="mt-0">
                     <p class="px-3 text-[11px] font-bold uppercase tracking-wider mb-1.5" style="color:var(--slate)">
-                        Production</p>
-                    <a href="{{ route('knitting1') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
-                        <livewire:elements.icons.package class="w-4 h-4" />
-                        <span>Knitting 1</span>
-                    </a>
-                </div>
-                <div class="mt-0">
-                    <p class="px-3 text-[11px] font-bold uppercase tracking-wider mb-1.5" style="color:var(--slate)">
                         Master Data</p>
-                    <a href="{{ route('users') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
-                        <livewire:elements.icons.package class="w-4 h-4" />
-                        <span>Users</span>
-                    </a>
-                    <a href="{{ route('machines') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
-                        <livewire:elements.icons.package class="w-4 h-4" />
-                        <span>Machines</span>
-                    </a>
                     <a href="{{ route('shifts') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
                         <livewire:elements.icons.package class="w-4 h-4" />
                         <span>Shifts</span>
@@ -59,6 +43,18 @@ new class extends Component {
                     <a href="{{ route('sections') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
                         <livewire:elements.icons.package class="w-4 h-4" />
                         <span>Sections</span>
+                    </a>
+                    <a href="{{ route('users') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
+                        <livewire:elements.icons.package class="w-4 h-4" />
+                        <span>Users</span>
+                    </a>
+                    <a href="{{ route('machines') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
+                        <livewire:elements.icons.package class="w-4 h-4" />
+                        <span>Machines</span>
+                    </a>
+                    <a href="{{ route('machine-operators') }}" wire:navigate.hover wire:current="active" class="sidebar-link">
+                        <livewire:elements.icons.package class="w-4 h-4" />
+                        <span>Machine Operators</span>
                     </a>
                 </div>
             @endcan

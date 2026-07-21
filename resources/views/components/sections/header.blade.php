@@ -39,7 +39,8 @@ new class extends Component {
                     @endif
                 </span>
             @endif
-            <button x-on:click="toggleDarkMode()" class="btn btn-ghost !px-2.5" title="Ganti tema">
+            <button x-on:click="toggleDarkMode()" class="btn btn-ghost !px-2.5 flex items-center gap-2 " title="Ganti tema">
+                <span class="text-xs hidden md:block">Theme</span>
                 <livewire:elements.icons.sun-moon class="w-4 h-4" />
             </button>
             <div class="flex items-center gap-2 pl-2 sm:pl-3" style="border-left:1px solid var(--border)">

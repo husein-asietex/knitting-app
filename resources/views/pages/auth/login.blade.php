@@ -41,14 +41,15 @@ new #[Layout('layouts::auth')] #[Title('Login')] class extends Component {
 
 <div x-cloak>
     <div class="absolute top-4 right-4">
-        <button x-on:click="toggleDarkMode()" class="btn !px-2.5 !py-2"
-            style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.15);color:#fff">S
+        <button x-on:click="toggleDarkMode()" class="btn btn-ghost !px-2.5 cursor-pointer !bg-surface flex items-center gap-2 ">
+            <span class="text-xs hidden md:block">Theme</span>
+            <livewire:elements.icons.sun-moon class="w-4 h-4" />
         </button>
     </div>
 
-    <div class="w-full max-w-4xl rounded-2xl overflow-hidden anim-fade-up login-card">
+    <div class="w-full max-w-4xl rounded-2xl overflow-hidden anim-fade-up card">
 
-        <!-- Right: form -->
+        <!-- form -->
         <div class="p-8 sm:p-10 flex flex-col justify-center" style="background:var(--surface)">
             <div class="flex items-center gap-3 mb-6">
                 <img src="{{ asset('android-chrome-512x512.png') }}" class="w-9 h-9 object-contain"
@@ -139,11 +140,11 @@ new #[Layout('layouts::auth')] #[Title('Login')] class extends Component {
             linear-gradient(160deg, #0B1B5C 0%, #0A0D14 100%);
     }
 
-    .login-card {
+    /* .login-card {
         background: var(--surface);
         border: 1px solid var(--border);
         box-shadow: 0 32px 80px rgba(0, 0, 0, .35);
-    }
+    } */
 
     .input-light {
         background: var(--surface-2);

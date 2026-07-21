@@ -66,44 +66,5 @@ class AppServiceProvider extends ServiceProvider
             return in_array($user->role_id, ['2', '1']);
         });
 
-        Gate::define('access-reports-create', function (User $user) {
-            return strtolower($user->position ?? '') === 'wakaru';
-        });
-
-        Gate::define('access-reports', function (User $user) {
-            return in_array($user->role, ['user', 'admin', 'superadmin']);
-        });
-
-        Gate::define('access-number-englishes', function (User $user) {
-            return in_array($user->role, ['user', 'admin', 'superadmin']);
-        });
-
-        Gate::define('access-lots', function (User $user) {
-            return in_array($user->role, ['user', 'admin', 'superadmin']);
-        });
-
-        Gate::define('access-blocks', function (User $user) {
-            return in_array($user->role, ['admin', 'superadmin']);
-        });
-
-        Gate::define('access-machines', function (User $user) {
-            return in_array($user->role, ['admin', 'superadmin']);
-        });
-
-        Gate::define('access-machine-users', function (User $user) {
-            return in_array($user->role, ['user', 'admin', 'superadmin']);
-        });
-
-        Gate::define('access-shifts', function (User $user) {
-            return in_array($user->role, ['admin', 'superadmin']);
-        });
-
-        Gate::define('access-teams', function (User $user) {
-            return in_array($user->role, ['admin', 'superadmin']);
-        });
-
-        Gate::define('access-users', function (User $user) {
-            return $user->role === 'superadmin';
-        });
     }
 }

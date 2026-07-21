@@ -161,11 +161,11 @@ html.dark {
     }
 
     body.layout-auth {
-        background: linear-gradient(160deg, #0b1b5c 0%, #0a0d14 70%);
+        background: var(--bg);
         min-height: 100vh;
     }
     html.dark body.layout-auth {
-        background: linear-gradient(160deg, #06102e 0%, #070910 70%);
+        background: var(--bg);
     }
 }
 
